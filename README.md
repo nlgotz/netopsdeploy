@@ -13,4 +13,6 @@ Installation
 $ pip install -r requirements.txt
 
 $ python setup.py install
+
+$ ln -s config/netopsdeploy.conf ~/.netopsdeploy.conf
 ```
