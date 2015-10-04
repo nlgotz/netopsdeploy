@@ -27,7 +27,7 @@ class ExamplePluginController(CementBaseController):
             (
                 ['-f', '--foo'],
                 dict(
-                    help='Notorious foo option',
+                    help='Notorious foobar option',
                     action='store',
                     )
             )
