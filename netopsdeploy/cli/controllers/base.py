@@ -1,11 +1,13 @@
 """Netops Deploy base controller."""
 
 from cement.core.controller import CementBaseController, expose
+import sys
 
 class NetopsDeployBaseController(CementBaseController):
     class Meta:
         label = 'base'
         description = 'Admin functions for Netops Device Deployment'
+
 
         arguments = [
             (['-n', '--hostname'],
@@ -47,18 +49,6 @@ class NetopsDeployBaseController(CementBaseController):
         print("hostname : %s" % self.app.pargs.hostname)
         print("ip       : %s" % self.app.pargs.ip)
         print("domain   : %s" % self.app.config.get('netopsdeploy', 'domain'))
-        print "\r\nSolar Winds:"
-        print("Server   : %s" % self.app.config.get('netopsdeploy', 'sw_server'))
-        print("Username : %s" % self.app.config.get('netopsdeploy', 'sw_username'))
-        print("Password : %s" % self.app.config.get('netopsdeploy', 'sw_password'))
-        print "\r\nInfoblox:"
-        print("Server   : %s" % self.app.config.get('netopsdeploy', 'ib_server'))
-        print("Username : %s" % self.app.config.get('netopsdeploy', 'ib_username'))
-        print("Password : %s" % self.app.config.get('netopsdeploy', 'ib_password'))
-
-        # Add Node to Solarwinds
-
-        # Add Node to Infoblox DNS
 
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
