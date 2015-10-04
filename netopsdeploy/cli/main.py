@@ -22,7 +22,9 @@ defaults['netopsdeploy']['template_dir'] = '/var/lib/netopsdeploy/templates'
 class NetopsDeployApp(CementApp):
     class Meta:
         label = 'netopsdeploy'
+
         config_defaults = defaults
+        arguments_override_config = True
 
         # All built-in application bootstrapping (always run)
         bootstrap = 'netopsdeploy.cli.bootstrap'
@@ -58,17 +60,17 @@ def main():
     with app:
         try:
             app.run()
-        
+
         except exc.NetopsDeployError as e:
             # Catch our application errors and exit 1 (error)
             print('NetopsDeployError > %s' % e)
             app.exit_code = 1
-            
+
         except FrameworkError as e:
             # Catch framework errors and exit 1 (error)
             print('FrameworkError > %s' % e)
             app.exit_code = 1
-            
+
         except CaughtSignal as e:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
             print('CaughtSignal > %s' % e)
