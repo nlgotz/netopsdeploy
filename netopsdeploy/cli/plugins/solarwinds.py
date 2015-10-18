@@ -2,9 +2,6 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-import requests
-import json
-requests.packages.urllib3.disable_warnings()
 import swisclient
 
 def ip_to_guid(IPAddress):
