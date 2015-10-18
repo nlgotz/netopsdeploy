@@ -5,85 +5,49 @@ from cement.core import handler, hook
 import requests
 import json
 requests.packages.urllib3.disable_warnings()
+import swisclient
 
-
-def _json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-    if isinstance(obj, datetime):
-        serial = obj.isoformat()
-        return serial
-
-class SwisClient:
-    def __init__(self, hostname, username, password):
-        self.url = "https://%s:17778/SolarWinds/InformationService/v3/Json/" % (hostname)
-        self.credentials = (username, password)
-
-    def query(self, query, **params):
-        return self._req("POST", "Query", {'query': query, 'parameters': params}).json()
-
-    def invoke(self, entity, verb, *args):
-        return self._req("POST", "Invoke/%s/%s" % (entity, verb), args).json()
-
-    def create(self, entity, **properties):
-        return self._req("POST", "Create/" + entity, properties).json()
-
-    def read(self, uri):
-        return self._req("GET", uri).json()
-
-    def update(self, uri, **properties):
-        self._req("POST", uri, properties)
-
-    def delete(self, uri):
-        self._req("DELETE", uri)
-
-    def _req(self, method, frag, data=None):
-        return requests.request(method, self.url + frag, 
-            data=json.dumps(data), 
-            verify=False, 
-            auth=self.credentials, 
-            headers={'Content-Type': 'application/json'})
-
-def ip_to_guid(IPAddress):  
-    ip = IPAddress.split('.')  
-    ip_guid = ""  
-    for part in reversed(ip):  
-        ip_guid += (format(int(part), '02x'))  
-    ip_guid += '-0000-0000-0000-000000000000'  
-    return ip_guid 
+def ip_to_guid(IPAddress):
+    ip = IPAddress.split('.')
+    ip_guid = ""
+    for part in reversed(ip):
+        ip_guid += (format(int(part), '02x'))
+    ip_guid += '-0000-0000-0000-000000000000'
+    return ip_guid
 
 
 def solarwinds_plugin_hook(app):
     # do something with the ``app`` object here.
-    
+
     server = app.config.get('solarwinds', 'sw_server')
     username = app.config.get('solarwinds', 'sw_username')
     password = app.config.get('solarwinds', 'sw_password')
-    
+
     print "Solar Winds:"
     print("Server   : %s" % server)
-    
+
     print "Starting"
-    swis = SwisClient(server,username,password)
-    
+    swis = swisclient.SwisClient(server,username,password)
+
     ip = app.pargs.ip
     IP_input = ip.strip()
     EntityType = "Orion.Nodes"
-    
-    uri = swis.create(EntityType,  
-        IPAddress = IP_input,  
-        IPAddressGUID = ip_to_guid(IP_input), 
+
+    uri = swis.create(EntityType,
+        IPAddress = IP_input,
+        IPAddressGUID = ip_to_guid(IP_input),
         DynamicIP = False,
-        EngineID = 2,  
-        Status = 1,  
-        UnManaged = False,  
-        Allow64BitCounters = True,  
-        ObjectSubType = "SNMP",  
-        MachineType = "",  
-        VendorIcon = "",  
-        RediscoveryInterval = 30,  
-        PollInterval = 60,  
+        EngineID = 2,
+        Status = 1,
+        UnManaged = False,
+        Allow64BitCounters = True,
+        ObjectSubType = "SNMP",
+        MachineType = "",
+        VendorIcon = "",
+        RediscoveryInterval = 30,
+        PollInterval = 60,
         StatCollection = 1,
-        Community = 'wine1headache',  
+        Community = 'wine1headache',
         SNMPVersion = 2,
         BufferNoMemThisHour = -2,
         BufferNoMemToday = -2,
@@ -96,13 +60,13 @@ def solarwinds_plugin_hook(app):
         BufferLgMissThisHour = -2,
         BufferLgMissToday = -2,
         BufferHgMissThisHour = -2,
-        BufferHgMissToday = -2)  
-    
+        BufferHgMissToday = -2)
+
     print "Created Device"
-    
+
     # Get all object properties for new node added
     # This adds all possible pollers except for Wireless Controllers
-    obj = swis.read(uri)  
+    obj = swis.read(uri)
     obj001 = swis.create("Orion.Pollers", PollerType = "N.Details.SNMP.Generic", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
     obj018 = swis.create("Orion.Pollers", PollerType = "N.Cpu.SNMP.CiscoCadant", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
     obj019 = swis.create("Orion.Pollers", PollerType = "N.Cpu.SNMP.CiscoExtreme", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
@@ -177,29 +141,29 @@ def solarwinds_plugin_hook(app):
     obj117 = swis.create("Orion.Pollers", PollerType = "N.Topology_Layer3_IpRouting.SNMP.ipCidrRouter", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
     obj118 = swis.create("Orion.Pollers", PollerType = "N.Uptime.SNMP.Generic", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
     obj118 = swis.create("Orion.Pollers", PollerType = "N.ResponseTime.ICMP.Native", NetObject="N:" + str(obj["NodeID"]), NetObjectType="N", NetObjectID=obj["NodeID"])
-    
+
     print "Created Pollers"
-    
+
     print "Adding to NCM"
     ### Add Node to NCM
     ncm = swis.invoke("Cirrus.Nodes", "AddNodetoNCM", str(obj["NodeID"]))
     print "Added to NCM"
-    
+
     print "Discovering Interfaces"
     ### Add Discovered Nodes
     discovered =  swis.invoke("Orion.NPM.Interfaces", "DiscoverInterfacesOnNode", str(obj["NodeID"]))
     print "Discovered Interfaces"
-    
+
     addint = swis.invoke("Orion.NPM.Interfaces", "AddInterfacesOnNode", str(obj["NodeID"]), discovered["DiscoveredInterfaces"], "AddDefaultPollers")
     print "Added Interfaces"
-    
+
     print "Done!"
-    
+
     print("Node ID  :   %s" % str(obj["NodeID"]))
-    
-    
-    
-    
+
+
+
+
     pass
 
 class SolarwindsPluginController(CementBaseController):
