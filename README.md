@@ -28,6 +28,7 @@ $ ln -s config/netopsdeploy.conf ~/.netopsdeploy.conf
 Future Plans for netopsdeploy
 ------------
 These are in no particular order
+
 1. Start adding unit testing
 2. Make it so you can run a single plugin
 3. Add Cisco ACS support for TACACS+
