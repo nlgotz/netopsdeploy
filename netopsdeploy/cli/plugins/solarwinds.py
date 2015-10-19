@@ -20,10 +20,7 @@ def solarwinds_plugin_hook(app):
     username = app.config.get('solarwinds', 'sw_username')
     password = app.config.get('solarwinds', 'sw_password')
 
-    print "Solar Winds:"
-    print("Server   : %s" % server)
-
-    print "Starting"
+    print("Starting to add Node to SolarWinds")
     swis = swisclient.SwisClient(server,username,password)
 
     ip = app.pargs.ip
@@ -197,6 +194,5 @@ class SolarwindsPluginController(CementBaseController):
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(SolarwindsPluginController)
-
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', solarwinds_plugin_hook)
+    #hook.register('post_argument_parsing', solarwinds_plugin_hook)

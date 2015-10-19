@@ -3,23 +3,21 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 import infoblox
+import requests
 
 def ib_plugin_hook(app):
     IP_input = app.pargs.ip.strip()
-    server = app.config.get('infoblox', 'ib_server')
-    username = app.config.get('infoblox', 'ib_username')
-    password = app.config.get('infoblox', 'ib_password')
-    version = app.config.get('infoblox', 'ib_version')
+    server = app.config.get('ib', 'ib_server')
+    username = app.config.get('ib', 'ib_username')
+    password = app.config.get('ib', 'ib_password')
+    version = app.config.get('ib', 'ib_version')
 
     hostname = app.pargs.hostname
     domain = app.config.get('netopsdeploy', 'domain')
     # Create the fqdn for the host
     fqdn = hostname + "." + domain
 
-    # Print basic information
-    print "Infoblox:"
-    print("Server   : %s" % server)
-    print("Version  : %s\r\n" % version)
+    print("Starting to add DNS records")
 
     # Create Connection to Infoblox
     iba_api = InfobloxSubclass(server, username, password, version, 'default', 'default')
@@ -27,17 +25,16 @@ def ib_plugin_hook(app):
     try:
         ip = iba_api.create_device_record(IP_input, fqdn)
         print ip
+        print("Created A and PTR records for:   %s" % fqdn)
     except Exception as e:
         print e
-
-    print("Created A and PTR records for:   %s" % fqdn)
     pass
 
 
 class IbPluginController(CementBaseController):
     class Meta:
         # name that the controller is displayed at command line
-        label = 'ib'
+        label = 'infoblox'
 
         # text displayed next to the label in ``--help`` output
         description = 'this is an example plugin controller'
@@ -51,25 +48,34 @@ class IbPluginController(CementBaseController):
         # these arguments are only going to display under
         # ``$ netopsdeploy example --help``
         arguments = [
-            (
-                ['-f', '--foo'],
-                dict(
-                    help='Notorious foobar option',
-                    action='store',
-                    )
-            )
+
+            (['-d', '--domain'],
+             dict(help='DNS domain of the device', dest='domain', action='store',
+                  metavar='TEXT') ),
+            (['-T', '--test'],
+             dict(help='Test the variables. Does not actually insert data', dest='test',
+                  action='store_true',) ),
+            (['--infoblox-server'],
+             dict(help='Infoblox Server Name', dest='ib_server', action='store',
+                  metavar='TEXT') ),
+            (['--infoblox-username'],
+             dict(help='Infoblox Username', dest='ib_username', action='store',
+                  metavar='TEXT') ),
+            (['--infoblox-password'],
+             dict(help='Infoblox Password', dest='ib_password', action='store',
+                  metavar='TEXT') ),
         ]
 
     @expose(hide=True)
     def default(self):
         print("Inside IbPluginController.default()")
+        ib_plugin_hook(self.app)
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(IbPluginController)
-
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', ib_plugin_hook)
+    #hook.register('post_argument_parsing', ib_plugin_hook)
 
 
 """

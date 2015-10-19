@@ -1,7 +1,9 @@
 """Netops Deploy base controller."""
 
 from cement.core.controller import CementBaseController, expose
+from cement.core import handler, hook
 import sys
+import os.path, pkgutil
 
 class NetopsDeployBaseController(CementBaseController):
     class Meta:
@@ -41,22 +43,60 @@ class NetopsDeployBaseController(CementBaseController):
              dict(help='Infoblox Password', dest='ib_password', action='store',
                   metavar='TEXT') ),
             ]
+
+    @expose(hide=False)
+    def run(self):
+        # setup variables variables
+        test        = self.app.pargs.test
+        hostname    = self.app.pargs.hostname
+        ip          = self.app.pargs.ip
+        domain      = self.app.config.get('netopsdeploy', 'domain')
+
+
+
+        # make sure that an IP and hostname are supplied
+        if(ip and hostname):
+            NetopsDeployBaseController.printConfiguration(self, hostname, ip, domain, test)
+            if(test):
+                return("Test successful")
+                pass
+
+            # run infoblox
+            import netopsdeploy.cli.plugins.ib as ib
+            ib.ib_plugin_hook(self.app)
+
+            # run solarwinds
+            import netopsdeploy.cli.plugins.solarwinds as solarwinds
+            solarwinds.solarwinds_plugin_hook(self.app)
+
+        else:
+            raise Exception('No IP or hostname supplied')
+
+
+
     @expose(hide=True)
     def default(self):
         print("Inside NetopsDeployBaseController.default().")
-        print "Configuration items:"
-        print("Testing? : %r" % self.app.pargs.test)
-        print("hostname : %s" % self.app.pargs.hostname)
-        print("ip       : %s" % self.app.pargs.ip)
-        print("domain   : %s" % self.app.config.get('netopsdeploy', 'domain'))
 
-        # If using an output handler such as 'mustache', you could also
-        # render a data dictionary using a template.  For example:
-        #
-        #   data = dict(foo='bar')
-        #   self.app.render(data, 'default.mustache')
-        #
-        #
-        # The 'default.mustache' file would be loaded from
-        # ``netopsdeploy.cli.templates``, or ``/var/lib/netopsdeploy/templates/``.
-        #
+
+
+
+
+    def printConfiguration(self, hostname, ip, domain, test):
+        print("Configuration:")
+        print("--------------")
+        print("Testing? : %r" % test)
+        print("hostname : %s" % hostname)
+        print("ip       : %s" % ip)
+        print("domain   : %s" % domain)
+        print("")
+        print("Solarwinds:")
+        print("-----------")
+        print("Server   : %s" % self.app.config.get('solarwinds', 'sw_server'))
+        print("Username : %s" % self.app.config.get('solarwinds', 'sw_username'))
+        print("")
+        print("Infoblox:")
+        print("---------")
+        print("Server   : %s" % self.app.config.get('ib', 'ib_server'))
+        print("Username : %s" % self.app.config.get('ib', 'ib_username'))
+        print("Version  : %s" % self.app.config.get('ib', 'ib_version'))
