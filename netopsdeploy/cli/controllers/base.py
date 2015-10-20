@@ -40,9 +40,6 @@ class NetopsDeployBaseController(CementBaseController):
         # make sure that an IP and hostname are supplied
         if(ip and hostname):
             NetopsDeployBaseController.printConfiguration(self, hostname, ip, domain, test)
-            if(test):
-                return("Test successful")
-                pass
 
             if(self.app.pargs.infoblox):
                 # run infoblox
