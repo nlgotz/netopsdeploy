@@ -56,7 +56,6 @@ class NetopsDeployBaseController(CementBaseController):
     @expose(hide=False)
     def test(self):
         # setup variables variables
-        test        = self.app.pargs.test
         hostname    = self.app.pargs.hostname
         ip          = self.app.pargs.ip
         domain      = self.app.config.get('netopsdeploy', 'domain')
@@ -79,10 +78,9 @@ class NetopsDeployBaseController(CementBaseController):
 
 
 
-    def printConfiguration(self, hostname, ip, domain, test):
+    def printConfiguration(self, hostname, ip, domain):
         print("Configuration:")
         print("--------------")
-        print("Testing? : %r" % test)
         print("hostname : %s" % hostname)
         print("ip       : %s" % ip)
         print("domain   : %s" % domain)
