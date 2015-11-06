@@ -18,6 +18,9 @@ class NetopsDeployBaseController(CementBaseController):
             (['-i', '--ip'],
              dict(help='IP address of the device', dest='ip', action='store',
                   metavar='TEXT') ),
+            (['-c', '--community'],
+             dict(help='SNMP Community String', dest='community' action='store',
+                  metavar='TEXT') ),
             (['-d', '--domain'],
              dict(help='DNS domain of the device', dest='domain', action='store',
                   metavar='TEXT') ),
@@ -46,9 +49,10 @@ class NetopsDeployBaseController(CementBaseController):
                 ib.ib_plugin_hook(self.app)
             
             if(self.app.pargs.solarwinds):
+                print "Solarwinds"
                 # run solarwinds
-                import netopsdeploy.cli.plugins.solarwinds as solarwinds
-                solarwinds.solarwinds_plugin_hook(self.app)
+                import netopsdeploy.cli.plugins.solarwinds as sw
+                sw.solarwinds_plugin_hook(self.app)
 
         else:
             raise Exception('No IP or hostname supplied')

@@ -19,6 +19,7 @@ def solarwinds_plugin_hook(app):
     server = app.config.get('solarwinds', 'sw_server')
     username = app.config.get('solarwinds', 'sw_username')
     password = app.config.get('solarwinds', 'sw_password')
+	community = app.config.get('netopsdeploy', 'community')
 
     print("Starting to add Node to SolarWinds")
     swis = swisclient.SwisClient(server,username,password)
@@ -41,7 +42,7 @@ def solarwinds_plugin_hook(app):
         RediscoveryInterval = 30,
         PollInterval = 60,
         StatCollection = 1,
-        Community = 'wine1headache',
+        Community = community,
         SNMPVersion = 2,
         BufferNoMemThisHour = -2,
         BufferNoMemToday = -2,
