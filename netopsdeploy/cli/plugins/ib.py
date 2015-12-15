@@ -37,7 +37,7 @@ class IbPluginController(CementBaseController):
         label = 'infoblox'
 
         # text displayed next to the label in ``--help`` output
-        description = 'this is an example plugin controller'
+        description = 'Add A and PTR record to Infoblox'
 
         # stack this controller on-top of ``base`` (or any other controller)
         stacked_on = 'base'
