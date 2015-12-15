@@ -19,7 +19,7 @@ def solarwinds_plugin_hook(app):
     server = app.config.get('solarwinds', 'sw_server')
     username = app.config.get('solarwinds', 'sw_username')
     password = app.config.get('solarwinds', 'sw_password')
-	community = app.config.get('netopsdeploy', 'community')
+    community = app.config.get('netopsdeploy', 'community')
 
     print("Starting to add Node to SolarWinds")
     swis = swisclient.SwisClient(server,username,password)

@@ -19,7 +19,7 @@ class NetopsDeployBaseController(CementBaseController):
              dict(help='IP address of the device', dest='ip', action='store',
                   metavar='TEXT') ),
             (['-c', '--community'],
-             dict(help='SNMP Community String', dest='community' action='store',
+             dict(help='SNMP Community String', dest='community', action='store',
                   metavar='TEXT') ),
             (['-d', '--domain'],
              dict(help='DNS domain of the device', dest='domain', action='store',
