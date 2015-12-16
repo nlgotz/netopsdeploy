@@ -34,42 +34,30 @@ def ib_plugin_hook(app):
 class IbPluginController(CementBaseController):
     class Meta:
         # name that the controller is displayed at command line
-        label = 'infoblox'
+        label = 'ib'
 
         # text displayed next to the label in ``--help`` output
         description = 'Add A and PTR record to Infoblox'
 
         # stack this controller on-top of ``base`` (or any other controller)
-        stacked_on = 'base'
+        stacked_on = 'run'
 
         # determines whether the controller is nested, or embedded
-        stacked_type = 'nested'
+        stacked_type = 'embedded'
 
         # these arguments are only going to display under
         # ``$ netopsdeploy example --help``
         arguments = [
-
-            (['-d', '--domain'],
-             dict(help='DNS domain of the device', dest='domain', action='store',
-                  metavar='TEXT') ),
-            (['-T', '--test'],
-             dict(help='Test the variables. Does not actually insert data', dest='test',
-                  action='store_true',) ),
-            (['--infoblox-server'],
+            (['--ib-server'],
              dict(help='Infoblox Server Name', dest='ib_server', action='store',
                   metavar='TEXT') ),
-            (['--infoblox-username'],
+            (['--ib-username'],
              dict(help='Infoblox Username', dest='ib_username', action='store',
                   metavar='TEXT') ),
-            (['--infoblox-password'],
+            (['--ib-password'],
              dict(help='Infoblox Password', dest='ib_password', action='store',
                   metavar='TEXT') ),
         ]
-
-    @expose(hide=True)
-    def default(self):
-        print("Inside IbPluginController.default()")
-        ib_plugin_hook(self.app)
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled

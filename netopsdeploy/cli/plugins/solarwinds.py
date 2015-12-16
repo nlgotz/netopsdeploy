@@ -164,33 +164,16 @@ def solarwinds_plugin_hook(app):
 class SolarwindsPluginController(CementBaseController):
     class Meta:
         # name that the controller is displayed at command line
-        label = 'solarwinds'
+        label = 'sw'
 
         # text displayed next to the label in ``--help`` output
         description = 'Add node to Solar Winds Orion'
 
         # stack this controller on-top of ``base`` (or any other controller)
-        stacked_on = 'base'
+        stacked_on = 'run'
 
         # determines whether the controller is nested, or embedded
-        stacked_type = 'nested'
-
-        # these arguments are only going to display under
-        # ``$ netopsdeploy example --help``
-        arguments = [
-            (
-                ['-f', '--foo'],
-                dict(
-                    help='Notorious foobar option',
-                    action='store',
-                    )
-            )
-        ]
-
-    @expose(hide=True)
-    def default(self):
-        print("Inside SolarwindsPluginController.default()")
-
+        stacked_type = 'embedded'
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled

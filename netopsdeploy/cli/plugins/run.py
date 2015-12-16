@@ -31,11 +31,13 @@ class RunPluginController(CementBaseController):
                   metavar='TEXT') ),
             (['-d', '--domain'],
              dict(help='DNS domain of the device', dest='domain', action='store',
-                  metavar='TEXT') ),
-            (['-ib', '--infoblox'],
+                  metavar='TEXT')),
+            (['-infoblox'],
              dict(help='Add device to Infoblox', dest='infoblox', action='store_true')),
-            (['-s', '--solarwinds'],
+            (['-solarwinds'],
              dict(help='Add device to Solar Winds', dest='solarwinds', action='store_true')),
+            (['-acs'],
+             dict(help='Add device to Cisco ACS 5.6', dest='acs', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -61,6 +63,13 @@ class RunPluginController(CementBaseController):
                 # run solarwinds
                 import netopsdeploy.cli.plugins.solarwinds as sw
                 sw.solarwinds_plugin_hook(self.app)
+
+            if(self.app.pargs.acs):
+                print "ACS"
+                # run solarwinds
+                import netopsdeploy.cli.plugins.acs as acs
+                acs.acs_plugin_hook(self.app)
+
 
         else:
             raise Exception('No IP or hostname supplied')
